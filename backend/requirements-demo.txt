@@ -1,0 +1,9 @@
+# Waypoint: light install for demo mode (no PyTorch, no model download, no API key)
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-dotenv>=1.0
+python-multipart>=0.0.9
+pypdf>=5
+langgraph>=1,<2
+langchain-core>=1,<2
+typing-extensions>=4.12,<5

@@ -1,0 +1,8 @@
+[
+  {"source": "class notes", "text": "LangGraph builds workflows using state, nodes, and edges."},
+  {"source": "class notes", "text": "Sentence embeddings represent text as vectors that capture meaning."},
+  {"source": "class notes", "text": "RAG retrieves relevant documents before generating an answer."},
+  {"source": "slide deck", "text": "LangChain connects language models to prompts, retrievers, and tools so you can build the application."},
+  {"source": "slide deck", "text": "LangSmith traces each run and evaluates output quality, so you can see why an answer failed."},
+  {"source": "slide deck", "text": "A checkpoint is saved state that lets a LangGraph run be resumed later when persistence is configured."}
+]
