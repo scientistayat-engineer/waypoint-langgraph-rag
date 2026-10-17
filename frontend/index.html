@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Waypoint | LangGraph question line</title>
+  <meta name="description" content="Ask questions about your documents and watch the LangGraph workflow run, station by station.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231B1A17'/%3E%3Cpath d='M14 32h36' stroke='%23E8452C' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='32' r='8' fill='%23F3EEE2'/%3E%3Ccircle cx='48' cy='32' r='8' fill='%23F3EEE2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>try{var s=localStorage.getItem("waypoint.theme");s=({light:"paper",dark:"night"})[s]||s;document.documentElement.dataset.theme=["paper","night","blueprint","terminal","neon"].includes(s)?s:(matchMedia("(prefers-color-scheme: dark)").matches?"night":"paper")}catch(e){document.documentElement.dataset.theme="paper"}</script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/config.js"></script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <a class="skip" href="#question">Skip to the question box</a>
+
+  <header class="top">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="currentColor"/>
+        <path d="M14 32h36" stroke="var(--line)" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="16" cy="32" r="8" fill="var(--paper)"/>
+        <circle cx="48" cy="32" r="8" fill="var(--paper)"/>
+      </svg>
+      <div>
+        <h1>Waypoint</h1>
+        <p>A LangGraph question line</p>
+      </div>
+    </div>
+    <div class="status" aria-label="Server status">
+      <span class="chip" id="chip-mode" hidden></span>
+      <span class="chip" id="chip-llm">Connecting…</span>
+      <span class="chip" id="chip-docs"></span>
+      <button class="btn ghost small" id="btn-key" type="button" hidden>API key</button>
+      <div class="themes" role="radiogroup" aria-label="Theme"><button class="swatch" type="button" role="radio" aria-checked="false" data-theme-pick="paper" title="Paper" aria-label="Paper theme"></button><button class="swatch" type="button" role="radio" aria-checked="false" data-theme-pick="night" title="Night" aria-label="Night theme"></button><button class="swatch" type="button" role="radio" aria-checked="false" data-theme-pick="blueprint" title="Blueprint" aria-label="Blueprint theme"></button><button class="swatch" type="button" role="radio" aria-checked="false" data-theme-pick="terminal" title="Terminal" aria-label="Terminal theme"></button><button class="swatch" type="button" role="radio" aria-checked="false" data-theme-pick="neon" title="Neon" aria-label="Neon theme"></button></div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <p class="kicker">Retrieval-augmented generation, made visible</p>
+    <p class="headline">Ask. Retrieve. <em>Generate.</em></p>
+    <div class="hero-line" aria-hidden="true"></div>
+  </section>
+
+  <main class="layout">
+    <form id="ask-form" class="panel ask" novalidate>
+      <label for="question" class="ask-label">Where to? Ask a question about your library.</label>
+      <div class="ask-row">
+        <input id="question" name="question" type="text" maxlength="500" autocomplete="off" placeholder="What does RAG do?">
+        <button class="btn primary" id="btn-ask" type="submit">Ask</button>
+      </div>
+      <p class="field-error" id="ask-error" role="alert" hidden></p>
+      <div class="examples" id="examples" aria-label="Example questions"></div>
+      <div class="opts">
+        <label>Passages to retrieve <input type="range" id="opt-k" min="1" max="6" value="2"> <output id="opt-k-out">2</output></label>
+        <label class="chk"><input type="checkbox" id="opt-slow"> Slow motion</label>
+        <label class="chk"><input type="checkbox" id="opt-sound"> Station chimes</label>
+        <span class="kbd">Press <kbd>/</kbd> to jump here</span>
+      </div>
+    </form>
+
+    <article class="panel">
+      <div class="sign"><h2>The line</h2></div>
+      <p class="hint">Your question travels through the graph, one station at a time.</p>
+      <div id="map" class="map" role="img" aria-label="Workflow graph: start, retrieve, then generate or fallback, then end"></div>
+    </article>
+
+    <div class="duo">
+      <article class="panel">
+        <div class="sign"><h2>State</h2></div>
+        <p class="hint">The data every station reads and writes. Watch it fill in.</p>
+        <dl id="state" class="state"></dl>
+      </article>
+
+      <div class="stack">
+        <article id="answer" class="ticket" aria-live="polite">
+          <div class="ticket-top">
+            <span class="stamp" id="answer-stamp" data-kind="idle">At the platform</span>
+            <span class="meta" id="answer-meta"></span>
+          </div>
+          <p class="ticket-q" id="answer-question" hidden></p>
+          <p class="ticket-a" id="answer-text">Ask a question to send a train down the line.</p>
+          <div class="ticket-actions"><button class="btn ghost small" id="btn-copy" type="button" hidden>Copy answer</button>
+            <button class="btn ghost small" id="btn-listen" type="button" hidden>Listen</button>
+            <button class="btn ghost small" id="btn-up" type="button" aria-pressed="false" hidden>Helpful</button>
+            <button class="btn ghost small" id="btn-down" type="button" aria-pressed="false" hidden>Not helpful</button></div>
+        </article>
+
+        <article id="sources-panel" class="panel" hidden>
+          <div class="sign blue"><h2>Stops along the way</h2></div>
+          <p class="hint">Passages the retrieve station picked. The answer may use only these.</p>
+          <ol id="sources" class="sources"></ol>
+        </article>
+      </div>
+    </div>
+    <section class="panel" aria-labelledby="log-title">
+      <div class="lib-head"><div class="sign gold"><h2 id="log-title">Journey log</h2></div><p class="hint" id="log-stats">No journeys yet.</p><button class="btn ghost small" id="btn-export" type="button" hidden>Export .md</button><button class="btn ghost small" id="btn-clear-log" type="button" hidden>Clear log</button></div>
+      <ol id="log" class="log-list"></ol>
+    </section>
+  </main>
+
+  <section class="library" aria-labelledby="lib-title">
+    <div class="lib-head">
+      <div class="sign green"><h2 id="lib-title">Library</h2></div>
+      <p class="hint">What the retrieve station searches. Add your own text and ask about it.</p>
+      <button class="btn ghost small" id="btn-reset" type="button">Reset to sample</button>
+    </div>
+    <label for="doc-filter" class="sr">Search the library</label>
+    <input id="doc-filter" class="filter" type="text" placeholder="Search the library">
+    <form id="add-form" class="add">
+      <label for="new-text" class="sr">New passage</label>
+      <textarea id="new-text" rows="3" maxlength="20000" placeholder="Paste notes, an article, or a few facts. Or load a PDF. Long text is split into passages."></textarea>
+      <div class="add-actions">
+        <label class="btn ghost small file">
+          Load a .pdf, .txt or .md file
+          <input id="file" type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" hidden>
+        </label>
+        <button class="btn primary small" type="submit">Add to library</button>
+      </div>
+    </form>
+    <div id="docs" class="docs"></div>
+  </section>
+
+  <footer class="foot">
+    <p>Built with LangGraph, FastAPI, and Groq. Library is held in memory and resets when the server restarts.</p>
+  </footer>
+
+  <dialog id="key-dialog">
+    <form method="dialog" id="key-form">
+      <h2>Groq API key</h2>
+      <p>The key stays in this browser and is sent with each question to your Waypoint server. The server does not store it.</p>
+      <label for="key-input" class="sr">Groq API key</label>
+      <input id="key-input" type="password" autocomplete="off" placeholder="gsk_…">
+      <div class="dialog-actions">
+        <button class="btn ghost small" type="button" id="key-clear">Remove key</button>
+        <span class="spacer"></span>
+        <button class="btn ghost small" type="button" id="key-cancel">Cancel</button>
+        <button class="btn primary small" type="submit" id="key-save" value="save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
