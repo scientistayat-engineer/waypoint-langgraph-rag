@@ -7,3 +7,4 @@ pypdf>=5
 langgraph>=1,<2
 langchain-core>=1,<2
 typing-extensions>=4.12,<5
+numpy>=1.26
